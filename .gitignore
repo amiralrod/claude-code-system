@@ -1,0 +1,11 @@
+# macOS
+.DS_Store
+
+# Third-party git repos in Skills/ — cloned externally, not tracked here
+# (add-skill writes entries here automatically)
+Skills/awesome-pm-skills/
+Skills/notebooklm-py/
+
+# Symlinks to other tools — not tracked here
+Skills/codex-skills
+Agents/codex-agents
