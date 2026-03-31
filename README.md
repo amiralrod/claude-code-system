@@ -25,7 +25,7 @@ Claude Code can be extended with **skills** (specialized knowledge and workflows
 ## Install
 
 ```bash
-git clone https://github.com/your-username/claude-code-system.git ~/ClaudeSystem
+git clone https://github.com/amiralrod/claude-code-system ~/ClaudeSystem
 bash ~/ClaudeSystem/setup.sh
 ```
 
