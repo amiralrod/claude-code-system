@@ -41,7 +41,46 @@ else
     echo "✓ Created symlink ~/.claude/agents → $AGENTS_TARGET"
 fi
 
-# ─── 3. Patch ~/.claude/CLAUDE.md ─────────────────────────────────────────────
+# ─── 3. Create ~/.claude/skills/ symlinks ─────────────────────────────────────
+# Claude Code discovers skills by scanning ~/.claude/skills/.
+# Without symlinks there, skills won't appear in "Available Skills" in any project.
+
+SKILLS_CLAUDE_DIR="$CLAUDE_DIR/skills"
+mkdir -p "$SKILLS_CLAUDE_DIR"
+
+# mine/ and local/ skills
+for skill_dir in "$INSTALL_DIR/Skills/mine"/*/ "$INSTALL_DIR/Skills/local"/*/; do
+    [ -d "$skill_dir" ] || continue
+    skill_name=$(basename "$skill_dir")
+    target="$SKILLS_CLAUDE_DIR/$skill_name"
+    if [ -L "$target" ]; then
+        echo "✓ Symlink ~/.claude/skills/$skill_name already exists — skipping"
+    elif [ -e "$target" ]; then
+        echo "  Warning: ~/.claude/skills/$skill_name exists but is not a symlink — skipping"
+    else
+        ln -s "$skill_dir" "$target"
+        echo "✓ Created symlink ~/.claude/skills/$skill_name"
+    fi
+done
+
+# Top-level git repo skills (awesome-pm-skills, notebooklm-py, etc.)
+for repo_dir in "$INSTALL_DIR/Skills"/*/; do
+    [ -d "${repo_dir}.git" ] || continue
+    repo_name=$(basename "$repo_dir")
+    target="$SKILLS_CLAUDE_DIR/$repo_name"
+    if [ -L "$target" ]; then
+        echo "✓ Symlink ~/.claude/skills/$repo_name already exists — skipping"
+    elif [ -e "$target" ]; then
+        echo "  Warning: ~/.claude/skills/$repo_name exists but is not a symlink — skipping"
+    else
+        ln -s "$repo_dir" "$target"
+        echo "✓ Created symlink ~/.claude/skills/$repo_name"
+    fi
+done
+
+echo ""
+
+# ─── 4. Patch ~/.claude/CLAUDE.md ─────────────────────────────────────────────
 
 CLAUDE_MD="$CLAUDE_DIR/CLAUDE.md"
 
@@ -66,12 +105,12 @@ EOF
     echo "✓ Added Skills & Agents section to ~/.claude/CLAUDE.md"
 fi
 
-# ─── 4. Make update.sh executable ─────────────────────────────────────────────
+# ─── 5. Make update.sh executable ─────────────────────────────────────────────
 
 chmod +x "$INSTALL_DIR/update.sh"
 echo "✓ Made update.sh executable"
 
-# ─── 5. OS-specific: auto-update scheduler ────────────────────────────────────
+# ─── 6. OS-specific: auto-update scheduler ────────────────────────────────────
 
 if [ "$OS" = "Darwin" ]; then
     # macOS — install launchd job (runs daily at 7:33 AM, survives sleep/wake)

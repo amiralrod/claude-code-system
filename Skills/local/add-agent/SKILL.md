@@ -170,6 +170,14 @@ Where `<type>` is one of: `Mine`, `Local file`
 
 ---
 
+## Note — No Discovery Symlink Needed for Global Agents
+
+Unlike skills, global agents do **not** need a symlink in `~/.claude/agents/`. That directory is already a symlink to `~/ClaudeSystem/Agents/` — so any agent saved there is automatically discoverable in every project. No extra step needed.
+
+(For reference: skills need per-skill symlinks in `~/.claude/skills/` because that directory is a real folder, not a symlink to the whole Skills directory.)
+
+---
+
 ## Step 5 — Clean Up Test Artifacts
 
 If any test files were created during authoring, delete them before finishing.

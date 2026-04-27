@@ -51,6 +51,34 @@ for repo_dir in "$SKILLS_DIR"/*/ "$SKILLS_DIR"/*/*/; do
     fi
 done
 
+# ─── Part 1b: Ensure ~/.claude/skills/ symlinks exist for all global skills ───
+# Safety net: creates missing symlinks so skills appear in "Available Skills"
+# across all projects. add-skill handles new installs immediately; this catches
+# edge cases (manual installs, restored machines, newly added git sub-skills).
+
+CLAUDE_SKILLS_DIR="$HOME/.claude/skills"
+mkdir -p "$CLAUDE_SKILLS_DIR"
+
+# mine/ and local/ skills — one symlink per skill folder
+for skill_dir in "$SKILLS_DIR"/mine/*/ "$SKILLS_DIR"/local/*/; do
+    [ -d "$skill_dir" ] || continue
+    skill_name=$(basename "$skill_dir")
+    target="$CLAUDE_SKILLS_DIR/$skill_name"
+    if [ ! -e "$target" ] && [ ! -L "$target" ]; then
+        ln -s "$skill_dir" "$target"
+    fi
+done
+
+# Top-level git repos (awesome-pm-skills, notebooklm-py, etc.)
+for repo_dir in "$SKILLS_DIR"/*/; do
+    [ -d "$repo_dir/.git" ] || continue
+    repo_name=$(basename "$repo_dir")
+    target="$CLAUDE_SKILLS_DIR/$repo_name"
+    if [ ! -e "$target" ] && [ ! -L "$target" ]; then
+        ln -s "$repo_dir" "$target"
+    fi
+done
+
 # ─── Part 2: Update local skills with .skill-source URLs ─────────────────────
 
 for skill_dir in "$SKILLS_DIR"/local/*/; do

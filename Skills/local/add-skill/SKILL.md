@@ -266,6 +266,29 @@ Where `<type>` is one of: `Git repo (single)`, `Git repo (collection)`, `Local f
 
 ---
 
+## Step 7 — Create Discovery Symlink (global installs only, not plugins)
+
+Claude Code discovers skills by scanning `~/.claude/skills/`. Without a symlink there, the skill won't appear in "Available Skills" in other projects.
+
+After a global install (Path A or B), create the symlink:
+
+```bash
+# Path A — git repo cloned to Skills/<repo-name>/
+ln -s ~/ClaudeSystem/Skills/<repo-name> ~/.claude/skills/<repo-name>
+
+# Path B — local file saved to Skills/local/<skill-name>/
+ln -s ~/ClaudeSystem/Skills/local/<skill-name> ~/.claude/skills/<skill-name>
+
+# mine/ skill (created with skill-creator)
+ln -s ~/ClaudeSystem/Skills/mine/<skill-name> ~/.claude/skills/<skill-name>
+```
+
+Skip this step for:
+- **Project-scope installs** — project skills go in `.claude/skills/` inside the project, not in `~/.claude/skills/`
+- **Plugin (Path C) installs** — Claude Code manages plugin discovery itself
+
+---
+
 ## Quick Reference
 
 **Global skills:**
