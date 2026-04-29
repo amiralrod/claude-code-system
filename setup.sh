@@ -64,8 +64,11 @@ for skill_dir in "$INSTALL_DIR/Skills/mine"/*/ "$INSTALL_DIR/Skills/local"/*/; d
 done
 
 # Top-level git repo skills (awesome-pm-skills, notebooklm-py, etc.)
+# Repos with a skills/ subdirectory (e.g. repo-forensics) get per-skill symlinks
+# instead of a single whole-repo symlink — handled in step 3b below.
 for repo_dir in "$INSTALL_DIR/Skills"/*/; do
     [ -d "${repo_dir}.git" ] || continue
+    [ -d "${repo_dir}skills" ] && continue  # per-skill symlinks handled in step 3b
     repo_name=$(basename "$repo_dir")
     target="$SKILLS_CLAUDE_DIR/$repo_name"
     if [ -L "$target" ]; then
@@ -75,6 +78,51 @@ for repo_dir in "$INSTALL_DIR/Skills"/*/; do
     else
         ln -s "$repo_dir" "$target"
         echo "✓ Created symlink ~/.claude/skills/$repo_name"
+    fi
+done
+
+echo ""
+
+# ─── 3b. Clone repo-forensics security scanner ────────────────────────────────
+# Source:  https://github.com/alexgreensh/repo-forensics
+# Author:  Alex Greenshpun (https://linkedin.com/in/alexgreensh)
+# License: PolyForm Noncommercial License 1.0.0
+#          Personal/non-commercial use only.
+#          Full terms: https://polyformproject.org/licenses/noncommercial/1.0.0
+#          Commercial licensing: me@alexgreenshpun.com
+# Required Notice: Copyright Alex Greenshpun (https://linkedin.com/in/alexgreensh)
+
+FORENSICS_DIR="$INSTALL_DIR/Skills/repo-forensics"
+
+if [ ! -d "$FORENSICS_DIR/.git" ]; then
+    echo "Cloning repo-forensics (security scanner by Alex Greenshpun)..."
+    echo "  License: PolyForm Noncommercial 1.0.0 — personal/non-commercial use only"
+    echo "  See THIRD-PARTY-LICENSES.md for full terms."
+    git clone https://github.com/alexgreensh/repo-forensics "$FORENSICS_DIR" --quiet
+    echo "✓ Cloned repo-forensics"
+
+    # Ensure it's excluded from git backup (has its own upstream source)
+    GITIGNORE="$INSTALL_DIR/.gitignore"
+    if ! grep -q "Skills/repo-forensics" "$GITIGNORE" 2>/dev/null; then
+        echo "Skills/repo-forensics/" >> "$GITIGNORE"
+    fi
+else
+    echo "✓ repo-forensics already installed — skipping"
+fi
+
+# Create per-skill symlinks (skills live inside the repo's skills/ subdirectory)
+for skill_name in repo-forensics forensify; do
+    skill_dir="$FORENSICS_DIR/skills/$skill_name"
+    target="$SKILLS_CLAUDE_DIR/$skill_name"
+    if [ -d "$skill_dir" ]; then
+        if [ -L "$target" ]; then
+            echo "✓ Symlink ~/.claude/skills/$skill_name already exists — skipping"
+        elif [ -e "$target" ]; then
+            echo "  Warning: ~/.claude/skills/$skill_name exists but is not a symlink — skipping"
+        else
+            ln -s "$skill_dir" "$target"
+            echo "✓ Created symlink ~/.claude/skills/$skill_name"
+        fi
     fi
 done
 

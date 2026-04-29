@@ -41,6 +41,8 @@ This file is the authoritative registry of all Claude Code skills installed at `
 | add-agent | Installs a Claude Code agent with strict security review (checks bypassPermissions, mcpServers, tool access), conflict check, and registry update | Agents Management | Local file (source URL tracked) | raw.githubusercontent.com/amiralrod/claude-code-system/main/Skills/local/add-agent/SKILL.md |
 | remove-agent | Removes an agent cleanly: deletes the file, removes the registry row, and commits to GitHub | Agents Management | Local file (source URL tracked) | raw.githubusercontent.com/amiralrod/claude-code-system/main/Skills/local/remove-agent/SKILL.md |
 | find-agents | Searches subagents.cc and GitHub collections to discover and recommend installable agents for any role | Agents Discovery | Local file (source URL tracked) | raw.githubusercontent.com/amiralrod/claude-code-system/main/Skills/local/find-agents/SKILL.md |
+| repo-forensics | Scans any repo, skill, MCP server, or plugin for security threats before install — 19 scanners, 500+ patterns, CVE/CISA KEV enrichment, supply chain and prompt injection detection | Security | Git repo (collection) · PolyForm Noncommercial | github.com/alexgreensh/repo-forensics |
+| forensify | Audits your entire installed AI agent stack (skills, MCP servers, hooks, plugins, credentials) for security risks and prompt injection surfaces | Security | Git repo (collection) · PolyForm Noncommercial | github.com/alexgreensh/repo-forensics |
 
 ---
 

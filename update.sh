@@ -70,8 +70,21 @@ for skill_dir in "$SKILLS_DIR"/mine/*/ "$SKILLS_DIR"/local/*/; do
 done
 
 # Top-level git repos (awesome-pm-skills, notebooklm-py, etc.)
+# Repos with a skills/ subdirectory (e.g. repo-forensics) get per-skill symlinks instead.
 for repo_dir in "$SKILLS_DIR"/*/; do
     [ -d "$repo_dir/.git" ] || continue
+    if [ -d "$repo_dir/skills" ]; then
+        # Create one symlink per skill inside the skills/ subdirectory
+        for skill_dir in "$repo_dir/skills"/*/; do
+            [ -f "${skill_dir}SKILL.md" ] || continue
+            skill_name=$(basename "$skill_dir")
+            target="$CLAUDE_SKILLS_DIR/$skill_name"
+            if [ ! -e "$target" ] && [ ! -L "$target" ]; then
+                ln -s "$skill_dir" "$target"
+            fi
+        done
+        continue
+    fi
     repo_name=$(basename "$repo_dir")
     target="$CLAUDE_SKILLS_DIR/$repo_name"
     if [ ! -e "$target" ] && [ ! -L "$target" ]; then

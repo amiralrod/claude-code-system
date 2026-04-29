@@ -21,6 +21,10 @@ Claude Code can be extended with **skills** (specialized knowledge and workflows
 | `remove-agent` | Meta-skill | Removes an agent cleanly |
 | `find-agents` | Meta-skill | Searches subagents.cc and GitHub to discover agents for any role |
 | `find-skills` | Local skill | Searches the skills.sh ecosystem to discover skills for any task |
+| `repo-forensics` | Security scanner | Scans any repo, skill, or MCP before you install it — 19 scanners, CVE/CISA KEV, prompt injection, supply chain detection |
+| `forensify` | Security scanner | Audits your entire installed agent stack (skills, hooks, MCP servers, credentials) for risks |
+
+`repo-forensics` and `forensify` are by [Alex Greenshpun](https://linkedin.com/in/alexgreensh) — downloaded from [github.com/alexgreensh/repo-forensics](https://github.com/alexgreensh/repo-forensics) under the **PolyForm Noncommercial License** (personal/non-commercial use only). See [THIRD-PARTY-LICENSES.md](THIRD-PARTY-LICENSES.md) for full terms.
 
 ## Install
 
