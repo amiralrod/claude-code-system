@@ -4,7 +4,7 @@
 # Run manually: bash ~/ClaudeSystem/update.sh
 #
 # What it does:
-#   1. Git repos    — git pull on skill repos, notify on new skill folders
+#   1. Git repos    — git pull on skill repos, security scan on changed content, notify on new skill folders
 #   2. Local skills — fetch from .skill-source URL, show diff if changed
 #   3. Local agents — fetch from .<agent>.source URL, show diff if changed
 #   4. Plugins      — sync installed Claude Code plugins to SKILLS-REGISTRY.md
@@ -41,13 +41,34 @@ for repo_dir in "$SKILLS_DIR"/*/ "$SKILLS_DIR"/*/*/; do
     repo_name=$(basename "$repo_dir")
 
     before=$(find "$repo_dir" -maxdepth 1 -mindepth 1 -type d ! -name ".*" ! -name "images" | sort)
+    sha_before=$(git -C "$repo_dir" rev-parse HEAD 2>/dev/null)
     git -C "$repo_dir" pull --quiet
     after=$(find "$repo_dir" -maxdepth 1 -mindepth 1 -type d ! -name ".*" ! -name "images" | sort)
+    sha_after=$(git -C "$repo_dir" rev-parse HEAD 2>/dev/null)
 
     new_skills=$(comm -13 <(echo "$before") <(echo "$after") | xargs -I{} basename {})
     if [ -n "$new_skills" ]; then
         skill_list=$(echo "$new_skills" | tr '\n' ', ' | sed 's/,$//')
         notify "New skills in $repo_name: $skill_list"
+    fi
+
+    # Security scan on changed content — skip repo-forensics scanning itself
+    if [ "$sha_before" != "$sha_after" ] && [ "$repo_name" != "repo-forensics" ]; then
+        _RF_SCAN="$SKILLS_DIR/repo-forensics/skills/repo-forensics/scripts/run_forensics.sh"
+        if [ -f "$_RF_SCAN" ]; then
+            scan_out=$(bash "$_RF_SCAN" "$repo_dir" --skill-scan 2>&1)
+            scan_code=$?
+            if [ $scan_code -eq 2 ]; then
+                git -C "$repo_dir" reset --hard "$sha_before" --quiet
+                notify "SECURITY ALERT: $repo_name update REVERTED — critical issues found. See /tmp/update-skills.log"
+                echo "=== [SECURITY CRITICAL] $repo_name reverted on $(date) ===" >> /tmp/update-skills.log
+                echo "$scan_out" >> /tmp/update-skills.log
+            elif [ $scan_code -eq 1 ]; then
+                notify "SECURITY WARNING: $repo_name updated but has flagged issues. See /tmp/update-skills.log"
+                echo "=== [SECURITY WARNING] $repo_name on $(date) ===" >> /tmp/update-skills.log
+                echo "$scan_out" >> /tmp/update-skills.log
+            fi
+        fi
     fi
 done
 
