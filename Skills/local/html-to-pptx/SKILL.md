@@ -6,6 +6,8 @@ description: Converts a single-page HTML slide deck (Claude-generated web
   wants an HTML presentation as PowerPoint / pptx / "editable deck for
   colleagues", mentions converting a web deck to PowerPoint, or asks to
   export slides for Office users.
+author: Amir Alrod
+source-folder: https://raw.githubusercontent.com/amiralrod/claude-code-system/main/Skills/local/html-to-pptx
 ---
 
 # HTML deck → editable PowerPoint
@@ -17,8 +19,10 @@ states) become one slide per visual state.
 ## Steps
 
 1. **Setup (first run on a machine only).** If `node_modules/` or `.venv/`
-   is missing in this skill folder, run `./setup.sh` and relay any notes
-   about LibreOffice/Poppler to the user.
+   is missing in this skill folder, run `./setup.sh`. It installs all
+   required deps and runs `scripts/check_deps.sh` at the end — relay its
+   output to the user. If optional deps (LibreOffice, Poppler) are missing,
+   ask the user before installing them; do not install silently.
 
 2. **Convert.** Run:
    `./scripts/convert.sh "<path to deck.html>" <workDir>`

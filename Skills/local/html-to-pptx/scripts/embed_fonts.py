@@ -23,8 +23,17 @@ REL_NS = "http://schemas.openxmlformats.org/package/2006/relationships"
 FONT_REL = ("http://schemas.openxmlformats.org/officeDocument/2006/"
             "relationships/font")
 
-LOCAL_DIRS = [os.path.expanduser("~/Library/Fonts"), "/Library/Fonts",
-              "/System/Library/Fonts", "/System/Library/Fonts/Supplemental"]
+LOCAL_DIRS = [
+    # macOS
+    os.path.expanduser("~/Library/Fonts"),
+    "/Library/Fonts",
+    "/System/Library/Fonts",
+    "/System/Library/Fonts/Supplemental",
+    # Linux
+    os.path.expanduser("~/.local/share/fonts"),
+    "/usr/share/fonts",
+    "/usr/local/share/fonts",
+]
 CACHE = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "fonts-cache")
 
 WEIGHT_FILE = {100: "Thin", 200: "ExtraLight", 300: "Light", 400: "Regular",
@@ -67,13 +76,31 @@ def download_google(family, weight, italic):
     fam = family.replace(" ", "+")
     url = (f"https://fonts.googleapis.com/css2?family={fam}:ital,wght@"
            f"{1 if italic else 0},{weight}")
-    req = urllib.request.Request(url, headers={"User-Agent": "Mozilla/4.0"})
-    css = urllib.request.urlopen(req, timeout=20).read().decode()
+    try:
+        req = urllib.request.Request(url, headers={"User-Agent": "Mozilla/4.0"})
+        css = urllib.request.urlopen(req, timeout=20).read().decode()
+    except OSError as exc:
+        raise RuntimeError(
+            f"Could not reach fonts.googleapis.com ({exc}). "
+            "This is common on corporate networks with strict outbound filtering. "
+            f"Download {family} manually from "
+            f"https://fonts.google.com/specimen/{fam} "
+            "and place the .ttf file in the fonts-cache/ folder next to this skill."
+        ) from exc
     m = re.search(r"url\((https://[^)]+\.ttf)\)", css)
     if not m:
-        raise RuntimeError("Google Fonts did not return a TTF")
-    with urllib.request.urlopen(m.group(1), timeout=30) as r, open(dest, "wb") as f:
-        shutil.copyfileobj(r, f)
+        raise RuntimeError("Google Fonts did not return a TTF download URL")
+    try:
+        with urllib.request.urlopen(m.group(1), timeout=30) as r, open(dest, "wb") as f:
+            shutil.copyfileobj(r, f)
+    except OSError as exc:
+        raise RuntimeError(
+            f"Font file download failed ({exc}). "
+            "Your network may block the font CDN. "
+            f"Download {family} manually from "
+            f"https://fonts.google.com/specimen/{fam} "
+            "and place the .ttf file in the fonts-cache/ folder."
+        ) from exc
     return dest
 
 def resolve(fonts):

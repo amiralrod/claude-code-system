@@ -322,8 +322,15 @@
       if ([...el.childNodes].some(n => n.nodeType === 3 && n.textContent.trim())) return true;
       const kids = [...el.children];
       if (!kids.length || !el.textContent.trim()) return false;
-      return kids.every(c => c.tagName === 'BR' ||
-        getComputedStyle(c).display.startsWith('inline'));
+      if (!kids.every(c => c.tagName === 'BR' || getComputedStyle(c).display.startsWith('inline'))) return false;
+      // An inline child with its own painted background must be visited separately
+      // so its background shape is emitted; absorbing it into this text run would
+      // silently drop the child's fill (e.g. a coloured pill inside a card).
+      if (kids.some(c => {
+        const cs = getComputedStyle(c);
+        return parseColor(cs.backgroundColor) !== null || parseGradient(cs.backgroundImage) !== null;
+      })) return false;
+      return true;
     }
 
     function tagFor(el) {

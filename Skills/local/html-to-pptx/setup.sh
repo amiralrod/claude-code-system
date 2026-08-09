@@ -11,13 +11,6 @@ echo "== Python environment =="
 if [ ! -d .venv ]; then python3 -m venv .venv; fi
 .venv/bin/pip install -q -r requirements.txt
 
-echo "== Optional verify tools =="
-if ! command -v soffice >/dev/null && [ ! -x "/Applications/LibreOffice.app/Contents/MacOS/soffice" ]; then
-  echo "NOTE: LibreOffice not found. The visual verify pass needs it:"
-  echo "      brew install --cask libreoffice"
-fi
-if ! command -v pdftoppm >/dev/null; then
-  echo "NOTE: pdftoppm (Poppler) not found. The visual verify pass needs it:"
-  echo "      brew install poppler"
-fi
-echo "Setup complete."
+echo ""
+echo "== Dependency check =="
+scripts/check_deps.sh

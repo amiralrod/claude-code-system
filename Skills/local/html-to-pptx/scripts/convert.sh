@@ -10,6 +10,9 @@ WORK="${2:-$(mktemp -d)}"
 BASE="$(basename "${DECK%.*}")"
 OUT="$(cd "$(dirname "$DECK")" && pwd)/$BASE.pptx"
 
+# Preflight: abort early if any required dependency is missing
+"$HERE/check_deps.sh" --required-only || exit 1
+
 node "$HERE/capture.js" "$DECK" "$WORK"
 "$SKILL/.venv/bin/python" "$HERE/rebuild.py" "$WORK/slides.json" "$OUT"
 "$SKILL/.venv/bin/python" "$HERE/embed_fonts.py" "$OUT" "$WORK/slides.json"

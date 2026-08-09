@@ -1,0 +1,14 @@
+README.md
+SKILL.md
+LICENSE
+setup.sh
+requirements.txt
+package.json
+skill-files.txt
+scripts/capture.js
+scripts/check_deps.sh
+scripts/convert.sh
+scripts/embed_fonts.py
+scripts/extract.js
+scripts/rebuild.py
+scripts/render_pptx.py

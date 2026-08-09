@@ -17,6 +17,7 @@ from pptx.util import Emu, Inches, Pt
 
 PX_PER_IN = 144.0
 SLIDE_W_EMU, SLIDE_H_EMU = 12192000, 6858000
+SLIDE_W_PX = 1920.0  # normalised coordinate space width
 
 WEIGHT_SUFFIX = {100: " Thin", 200: " ExtraLight", 300: " Light",
                  500: " Medium", 600: " SemiBold", 800: " ExtraBold",
@@ -197,7 +198,9 @@ def add_text(slide, el):
     r0 = el["paragraphs"][0]["runs"][0] if el["paragraphs"][0]["runs"] else {}
     if single_line and r0.get("letterSpacingPx", 0) > 0 and r0.get("fontSizePx"):
         frac += 2.5 * r0["letterSpacingPx"] / r0["fontSizePx"]
-    pad = el["w"] * frac
+    # cap padding so the box never extends past the slide's right edge
+    max_pad = max(0.0, SLIDE_W_PX - el["x"] - el["w"])
+    pad = min(el["w"] * frac, max_pad)
     x = el["x"]
     if el.get("align") == "center":
         x -= pad / 2
