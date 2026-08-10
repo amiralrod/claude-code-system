@@ -36,7 +36,7 @@ Wait for confirmation.
 2. Remove the entry from `~/ClaudeSystem/Skills/.gitignore`
 
 ### Local file
-1. Delete the folder:
+1. Delete the folder (this also removes `.skill-source`, `.skill-source-folder`, and all downloaded scripts):
    ```bash
    rm -rf ~/ClaudeSystem/Skills/local/<skill-name>
    ```
@@ -62,11 +62,21 @@ Delete the skill's row from the relevant registry file:
 
 ## Step 5 — Commit and push (global skills only)
 
+The git repo root is `~/Claude Code`, **not** the Skills folder. A bare
+`git add -A` stages the entire repo no matter which subfolder you run it from,
+which sweeps in unrelated work in progress and build artifacts. Limit it to the
+skills tree with a pathspec:
+
 ```bash
-cd ~/ClaudeSystem/Skills
-git add -A
+cd ~/Claude\ Code
+git add -A -- System/Skills
+git diff --cached --stat        # confirm ONLY skills files are staged
 git commit -m "Remove skill: <skill-name>"
 git push
 ```
+
+If `git diff --cached --stat` lists anything outside `System/Skills/`, it was
+already staged before you started. Unstage it (`git restore --staged <path>`)
+rather than committing someone else's work in progress.
 
 Confirm to the user: *"`<skill-name>` has been removed and the backup updated."*

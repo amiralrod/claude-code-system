@@ -151,7 +151,22 @@ Always show the full scanner output to the user before asking for confirmation.
 
 1. Confirm with user, mentioning auto-update capability if a source URL is known.
 2. Save to `~/ClaudeSystem/Skills/local/<skill-name>/SKILL.md`
-3. If source URL known, save to `.skill-source` alongside it — `update-skills.sh` will auto-fetch updates.
+3. If source URL known, save to `.skill-source` alongside it — `update.sh` will auto-fetch updates.
+4. **Folder-shaped skill** (SKILL.md contains `source-folder:` in frontmatter): after saving SKILL.md, also:
+   - Write the folder URL to `.skill-source-folder` alongside SKILL.md
+   - Fetch `<folder-url>/skill-files.txt` to get the file manifest
+   - Download each listed file into the skill folder (create subdirs as needed):
+     ```bash
+     BASE_URL="<the source-folder URL>"
+     SKILL_DIR=~/ClaudeSystem/Skills/local/<skill-name>
+     echo "$BASE_URL" > "$SKILL_DIR/.skill-source-folder"
+     curl -sf "$BASE_URL/skill-files.txt" | while IFS= read -r f; do
+       [ -z "$f" ] && continue
+       mkdir -p "$SKILL_DIR/$(dirname "$f")"
+       curl -sf "$BASE_URL/$f" -o "$SKILL_DIR/$f"
+     done
+     ```
+   - Run `setup.sh` if it exists in the downloaded files.
 
 ### Path C — Plugin Marketplace (always global)
 
