@@ -199,7 +199,7 @@ $new_row
                 notify "Plugin '$plugin' is in registry but no longer installed — consider removing it"
             fi
         fi
-    done < <(grep "| Plugin |" "$REGISTRY")
+    done < <(awk -F'|' '$5 ~ /^ *Plugin *$/' "$REGISTRY")
 fi
 
 # ─── Part 5: Backup to GitHub ─────────────────────────────────────────────────
