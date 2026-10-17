@@ -23,6 +23,17 @@ First, determine scope.
 
 Plugin marketplace skills (Path C) are **always global** — they're managed by Claude Code itself.
 
+**Two-Mac setup (only if `~/home-work-shared-skills/` exists; otherwise skip this).** The user
+syncs skills between two Macs (`cat ~/.claude/shared-skills-machine` says which one this is).
+For a global install, unless they already said, ask:
+> *"Also install it on your other Mac?"*
+
+If yes, after Step 7 add a row and a recipe to `~/home-work-shared-skills/THIRD-PARTY.md`
+(format and rules at the top of that file; never write secrets into it), then run
+`bash ~/home-work-shared-skills/system/sync.sh`. The other Mac gets a notification and installs it
+on "install pending skills". Full rules: the `two-mac-skills` skill, which
+also covers where a skill the user creates themselves should live.
+
 ---
 
 ## Step 1 — Conflict Check
@@ -152,21 +163,14 @@ Always show the full scanner output to the user before asking for confirmation.
 1. Confirm with user, mentioning auto-update capability if a source URL is known.
 2. Save to `~/ClaudeSystem/Skills/local/<skill-name>/SKILL.md`
 3. If source URL known, save to `.skill-source` alongside it — `update.sh` will auto-fetch updates.
-4. **Folder-shaped skill** (SKILL.md contains `source-folder:` in frontmatter): after saving SKILL.md, also:
-   - Write the folder URL to `.skill-source-folder` alongside SKILL.md
-   - Fetch `<folder-url>/skill-files.txt` to get the file manifest
-   - Download each listed file into the skill folder (create subdirs as needed):
-     ```bash
-     BASE_URL="<the source-folder URL>"
-     SKILL_DIR=~/ClaudeSystem/Skills/local/<skill-name>
-     echo "$BASE_URL" > "$SKILL_DIR/.skill-source-folder"
-     curl -sf "$BASE_URL/skill-files.txt" | while IFS= read -r f; do
-       [ -z "$f" ] && continue
-       mkdir -p "$SKILL_DIR/$(dirname "$f")"
-       curl -sf "$BASE_URL/$f" -o "$SKILL_DIR/$f"
-     done
-     ```
-   - Run `setup.sh` if it exists in the downloaded files.
+4. **Folder-shaped skill** (SKILL.md has `source-folder:` in its frontmatter, so it needs more files
+   than SKILL.md): its folder URL lists the files in `skill-files.txt`.
+   - Save the folder URL to `.skill-source-folder` beside SKILL.md, then download each file listed in
+     `<folder-url>/skill-files.txt` into the skill folder (creating subfolders as needed).
+   - **Scan before anything runs:** run the 3b repo-forensics scan on the whole skill folder and
+     follow its exit-code rules.
+   - If a `setup.sh` came with it, show the user what it does in plain words and run it **only after
+     they say yes**. Never run downloaded scripts unprompted.
 
 ### Path C — Plugin Marketplace (always global)
 
@@ -322,6 +326,9 @@ ln -s ~/ClaudeSystem/Skills/local/<skill-name> ~/.claude/skills/<skill-name>
 
 # mine/ skill (created with skill-creator)
 ln -s ~/ClaudeSystem/Skills/mine/<skill-name> ~/.claude/skills/<skill-name>
+
+# shared skill (both Macs)
+ln -s ~/home-work-shared-skills/skills/<skill-name> ~/.claude/skills/<skill-name>
 ```
 
 Skip this step for:

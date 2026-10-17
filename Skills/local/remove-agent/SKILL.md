@@ -48,20 +48,18 @@ Delete the agent's row from the relevant registry file:
 
 ## Step 5 — Commit and push (global agents only)
 
-`~/Claude Code` is the repo root, so a bare `git add -A` stages everything in
-it — unrelated work in progress and build artifacts included. Limit it to the
-agents tree with a pathspec:
+The git repo may be bigger than the agents folder (on the home Mac it is all of `~/Claude Code`),
+so a bare `git add -A` would sweep in unrelated work in progress. Stage only the agents folder:
 
 ```bash
-cd ~/Claude\ Code
-git add -A -- System/Agents
+cd ~/ClaudeSystem/Agents
+git add -A -- .
 git diff --cached --stat        # confirm ONLY agents files are staged
 git commit -m "Remove agent: <agent-name>"
 git push
 ```
 
-If `git diff --cached --stat` lists anything outside `System/Agents/`, it was
-already staged before you started. Unstage it (`git restore --staged <path>`)
-rather than committing someone else's work in progress.
+If `git diff --cached --stat` lists anything outside the agents folder, it was already staged before
+you started. Unstage it (`git restore --staged <path>`) rather than committing someone else's work.
 
 Confirm to the user: *"`<agent-name>` has been removed and the backup updated."*

@@ -36,7 +36,7 @@ Wait for confirmation.
 2. Remove the entry from `~/ClaudeSystem/Skills/.gitignore`
 
 ### Local file
-1. Delete the folder (this also removes `.skill-source`, `.skill-source-folder`, and all downloaded scripts):
+1. Delete the folder (this also removes `.skill-source`, `.skill-source-folder`, and any downloaded files):
    ```bash
    rm -rf ~/ClaudeSystem/Skills/local/<skill-name>
    ```
@@ -46,6 +46,20 @@ Wait for confirmation.
    ```bash
    rm -rf ~/ClaudeSystem/Skills/mine/<skill-name>
    ```
+
+### Shared skill (two-Mac setup only: in `~/home-work-shared-skills/skills/`)
+Skip this section if that folder does not exist.
+Removing it here removes it from **both** Macs. Say so when confirming in Step 2.
+1. Delete the folder and the pointer: `rm -rf ~/home-work-shared-skills/skills/<skill-name>` and
+   `rm ~/.claude/skills/<skill-name>`
+2. Remove its row from `~/home-work-shared-skills/SHARED-REGISTRY.md`.
+3. Run `bash ~/home-work-shared-skills/system/sync.sh`. The other Mac's daily update then finds a
+   broken pointer for it; tell the user to delete `~/.claude/skills/<skill-name>` there too.
+
+### Third-party skill listed in `~/home-work-shared-skills/THIRD-PARTY.md`
+While it is on that list, this Mac will keep reporting it as "waiting to be installed". So remove
+its row and recipe from THIRD-PARTY.md and sync, and tell the user to run remove-skill for it on the
+other Mac too if they want it gone there as well.
 
 ### Plugin
 1. Uninstall via Claude Code → `⌘+Shift+P` → Manage Plugins → Plugins tab → Uninstall
@@ -62,21 +76,18 @@ Delete the skill's row from the relevant registry file:
 
 ## Step 5 — Commit and push (global skills only)
 
-The git repo root is `~/Claude Code`, **not** the Skills folder. A bare
-`git add -A` stages the entire repo no matter which subfolder you run it from,
-which sweeps in unrelated work in progress and build artifacts. Limit it to the
-skills tree with a pathspec:
+The git repo may be bigger than the skills folder (on the home Mac it is all of `~/Claude Code`),
+so a bare `git add -A` would sweep in unrelated work in progress. Stage only the skills folder:
 
 ```bash
-cd ~/Claude\ Code
-git add -A -- System/Skills
+cd ~/ClaudeSystem/Skills
+git add -A -- .
 git diff --cached --stat        # confirm ONLY skills files are staged
 git commit -m "Remove skill: <skill-name>"
 git push
 ```
 
-If `git diff --cached --stat` lists anything outside `System/Skills/`, it was
-already staged before you started. Unstage it (`git restore --staged <path>`)
-rather than committing someone else's work in progress.
+If `git diff --cached --stat` lists anything outside the skills folder, it was already staged before
+you started. Unstage it (`git restore --staged <path>`) rather than committing someone else's work.
 
 Confirm to the user: *"`<skill-name>` has been removed and the backup updated."*
