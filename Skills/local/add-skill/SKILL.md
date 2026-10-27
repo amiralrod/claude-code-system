@@ -332,6 +332,9 @@ ln -s ~/home-work-shared-skills/skills/<skill-name> ~/.claude/skills/<skill-name
 ```
 
 Skip this step for:
+- **Video tools, if a `video` router skill is installed** (anything that makes, edits, captions,
+  voices or renders video) — they get no pointer and are reached only through the router. Follow
+  "Adding a new video tool" at the end of the `video` skill instead of this step
 - **Project-scope installs** — project skills go in `.claude/skills/` inside the project, not in `~/.claude/skills/`
 - **Plugin (Path C) installs** — Claude Code manages plugin discovery itself
 
